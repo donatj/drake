@@ -6,7 +6,7 @@
 
 const drake = (R: number, fp: number, ne: number, fl: number, fi: number, fc: number, L: number) => R * fp * ne * fl * fi * fc * L;
 
-class DrakeMaker {
+class DrakeUI {
 	public constructor(
 		private R: HTMLInputElement,
 		private fp: HTMLInputElement,
@@ -20,17 +20,12 @@ class DrakeMaker {
 		const inputs = this.inputs();
 
 		const change = () => {
-			let valid = true;
-			for (const i of inputs) {
-				if (!i.checkValidity()) {
-					valid = false;
-					i.classList.add("is-invalid");
-				} else {
-					i.classList.remove("is-invalid");
-				}
-			}
+			let invalid = inputs.filter(i => !i.checkValidity());
+			inputs.forEach(i => i.classList.remove("is-invalid"));
+			invalid.forEach(i => i.classList.add("is-invalid"));
 
-			if (!valid) {
+			if (invalid.length > 0) {
+				this.N.value = "Error:\n\n" + invalid.map(i => `• ${i.name}: ${i.validationMessage}`).join("\n");
 				return;
 			}
 
@@ -45,7 +40,7 @@ class DrakeMaker {
 			i.addEventListener("input", change);
 		}
 
-		this.drakeItUp();
+		change();
 	}
 
 	private inputs(): HTMLInputElement[] {
@@ -86,17 +81,15 @@ function createLinkedRangeInput(i: HTMLInputElement): HTMLInputElement {
 	rng.style.display = 'block';
 	i.parentElement!.insertBefore(rng, i.nextSibling);
 
-	rng.addEventListener("input", () => {
-		if (rng.value === i.value) { // prevent infinite loop
-			return;
+	const syncValue = function (source: HTMLInputElement, target: HTMLInputElement) {
+		if (source.value !== target.value) {
+			target.value = source.value;
+			target.dispatchEvent(new Event("input"));
 		}
+	};
 
-		i.value = rng.value;
-		i.dispatchEvent(new Event("input"));
-	});
-	i.addEventListener("input", () => {
-		rng.value = i.value;
-	});
+	rng.addEventListener("input", function () { syncValue(rng, i); });
+	i.addEventListener("input", function () { syncValue(i, rng); });
 
 	return rng;
 }
