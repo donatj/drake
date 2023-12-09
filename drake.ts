@@ -8,14 +8,14 @@ const drake = (R: number, fp: number, ne: number, fl: number, fi: number, fc: nu
 
 class DrakeMaker {
 	public constructor(
-		protected R: HTMLInputElement,
-		protected fp: HTMLInputElement,
-		protected ne: HTMLInputElement,
-		protected fl: HTMLInputElement,
-		protected fi: HTMLInputElement,
-		protected fc: HTMLInputElement,
-		protected L: HTMLInputElement,
-		protected N: HTMLInputElement
+		private R: HTMLInputElement,
+		private fp: HTMLInputElement,
+		private ne: HTMLInputElement,
+		private fl: HTMLInputElement,
+		private fi: HTMLInputElement,
+		private fc: HTMLInputElement,
+		private L: HTMLInputElement,
+		private N: HTMLInputElement
 	) {
 		const inputs = this.inputs();
 
@@ -38,15 +38,17 @@ class DrakeMaker {
 		}
 
 		for (const i of inputs) {
-			i.addEventListener("keyup", change);
-			i.addEventListener("change", change);
+			if (i.type === "number" && i.min !== "" && i.max !== "" && i.step !== "") {
+				createLinkedRangeInput(i);
+			}
+
 			i.addEventListener("input", change);
 		}
 
 		this.drakeItUp();
 	}
 
-	protected inputs(): HTMLInputElement[] {
+	private inputs(): HTMLInputElement[] {
 		return [
 			this.R,
 			this.fp,
@@ -58,7 +60,7 @@ class DrakeMaker {
 		];
 	}
 
-	protected drakeItUp() {
+	private drakeItUp() {
 		const N = drake(
 			parseFloat(this.R.value),
 			parseFloat(this.fp.value),
@@ -69,6 +71,32 @@ class DrakeMaker {
 			parseFloat(this.L.value)
 		);
 
-		this.N.value = String(N);//.toExponential().replace(/0+$/, "");
+		this.N.title = String(N);
+		this.N.value = N.toFixed(6);
 	}
+}
+
+function createLinkedRangeInput(i: HTMLInputElement): HTMLInputElement {
+	const rng = document.createElement("input");
+	rng.type = "range";
+	rng.min = i.min;
+	rng.max = i.max;
+	rng.step = i.step;
+	rng.value = i.value;
+	rng.style.display = 'block';
+	i.parentElement!.insertBefore(rng, i.nextSibling);
+
+	rng.addEventListener("input", () => {
+		if (rng.value === i.value) { // prevent infinite loop
+			return;
+		}
+
+		i.value = rng.value;
+		i.dispatchEvent(new Event("input"));
+	});
+	i.addEventListener("input", () => {
+		rng.value = i.value;
+	});
+
+	return rng;
 }
