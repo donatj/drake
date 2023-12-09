@@ -4,35 +4,45 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-const drake = (R: number, fp: number, ne: number, fl: number, fi: number, fc: number, L: number) => R * fp * ne * fl * fi * fc * L;
+const drake = (R: number, fp: number, ne: number, fl: number, fi: number, fc: number, L: number) : number => R * fp * ne * fl * fi * fc * L;
 
 class DrakeUI {
-	public constructor(
-		private R: HTMLInputElement,
-		private fp: HTMLInputElement,
-		private ne: HTMLInputElement,
-		private fl: HTMLInputElement,
-		private fi: HTMLInputElement,
-		private fc: HTMLInputElement,
-		private L: HTMLInputElement,
-		private N: HTMLInputElement
-	) {
-		const inputs = this.inputs();
 
-		const change = () => {
-			let invalid = inputs.filter(i => !i.checkValidity());
-			inputs.forEach(i => i.classList.remove("is-invalid"));
-			invalid.forEach(i => i.classList.add("is-invalid"));
+	private readonly inputs = [
+		this.R,
+		this.fp,
+		this.ne,
+		this.fl,
+		this.fi,
+		this.fc,
+		this.L
+	];
+
+	public constructor(
+		private readonly R: HTMLInputElement,
+		private readonly fp: HTMLInputElement,
+		private readonly ne: HTMLInputElement,
+		private readonly fl: HTMLInputElement,
+		private readonly fi: HTMLInputElement,
+		private readonly fc: HTMLInputElement,
+		private readonly L: HTMLInputElement,
+		N: HTMLInputElement
+	) {
+		const change = (): void => {
+			const invalid = this.inputs.filter(i => !i.checkValidity());
+			this.inputs.forEach(i => i.classList.toggle("is-invalid", invalid.includes(i)));
 
 			if (invalid.length > 0) {
-				this.N.value = "Error:\n\n" + invalid.map(i => `• ${i.name}: ${i.validationMessage}`).join("\n");
+				N.value = "Error:\n\n" + invalid.map(i => `• ${i.name}: ${i.validationMessage}`).join("\n");
 				return;
 			}
 
-			this.drakeItUp();
+			const NValue = this.calculate();
+			N.title = String(NValue);
+			N.value = NValue.toFixed(6);
 		}
 
-		for (const i of inputs) {
+		for (const i of this.inputs) {
 			if (i.type === "number" && i.min !== "" && i.max !== "" && i.step !== "") {
 				createLinkedRangeInput(i);
 			}
@@ -43,20 +53,8 @@ class DrakeUI {
 		change();
 	}
 
-	private inputs(): HTMLInputElement[] {
-		return [
-			this.R,
-			this.fp,
-			this.ne,
-			this.fl,
-			this.fi,
-			this.fc,
-			this.L
-		];
-	}
-
-	private drakeItUp() {
-		const N = drake(
+	private calculate(): number {
+		return drake(
 			parseFloat(this.R.value),
 			parseFloat(this.fp.value),
 			parseFloat(this.ne.value),
@@ -65,9 +63,6 @@ class DrakeUI {
 			parseFloat(this.fc.value),
 			parseFloat(this.L.value)
 		);
-
-		this.N.title = String(N);
-		this.N.value = N.toFixed(6);
 	}
 }
 
@@ -81,15 +76,15 @@ function createLinkedRangeInput(i: HTMLInputElement): HTMLInputElement {
 	rng.style.display = 'block';
 	i.parentElement!.insertBefore(rng, i.nextSibling);
 
-	const syncValue = function (source: HTMLInputElement, target: HTMLInputElement) {
+	const syncValue = (source: HTMLInputElement, target: HTMLInputElement): void => {
 		if (source.value !== target.value) {
 			target.value = source.value;
 			target.dispatchEvent(new Event("input"));
 		}
 	};
 
-	rng.addEventListener("input", function () { syncValue(rng, i); });
-	i.addEventListener("input", function () { syncValue(i, rng); });
+	rng.addEventListener("input", () => syncValue(rng, i));
+	i.addEventListener("input", () => syncValue(i, rng));
 
 	return rng;
 }
