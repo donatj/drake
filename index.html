@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<script src="drake.js" type="text/javascript"></script>
+	<style>
+		label {
+			display: block;
+		}
+
+		.drake-inputs input {
+			width: 200px;
+			font-size: 1.1em;
+		}
+
+		.is-invalid {
+			background-color: pink;
+		}
+	</style>
+</head>
+
+<body>
+
+<img src="equation.svg" />
+
+<div class="drake-inputs">
+	<figure>
+		<label>
+			<i>R</i><sub>*</sub>
+			<br>
+			<input type="number" required name="R" value="1" min="0">
+		</label>
+		<figcaption>
+			<p>Rate of star creation in our Galaxy per year.</p>
+			<p>NASA and the ESA estimate this value to be between 1.5 and 3</p>
+		</figcaption>
+	</figure>
+	<figure>
+		<label>
+			<i>f</i><sub>p</sub>
+			<br>
+			<input type="number" required name="fp" value=".999" max="1" min="0" step=".0001">
+		</label>
+		<figcaption>
+			<p>Fraction of stars that have planets</p>
+			<p>Current science suggests this value is very near 1</p>
+		</figcaption>
+	</figure>
+	<figure>
+		<label>
+			<i>n</i><sub>e</sub>
+			<br>
+			<input type="number" required name="ne" value="2.0" min="0">
+		</label>
+		<figcaption>Average number of planets that might support life per star that has planets</figcaption>
+	</figure>
+	<figure>
+		<label>
+			<i>f</i><sub>l</sub>
+			<br>
+			<input type="number" required name="fl" value="1.0" max="1" min="0" step=".0001">
+		</label>
+		<figcaption>Fraction of the above that actually go on to develop life</figcaption>
+	</figure>
+	<figure>
+		<label>
+			<i>f</i><sub>i</sub>
+			<br>
+			<input type="number" required name="fi" value="0.01" max="1" min="0" step=".0001">
+		</label>
+		<figcaption>Fraction of the above that develops intelligent life</figcaption>
+	</figure>
+	<figure>
+		<label>
+			<i>f</i><sub>c</sub>
+			<br>
+			<input type="number" required name="fc" value="0.01" max="1" min="0" step=".0001">
+		</label>
+		<figcaption>Fraction of the above revealing their existence via signal release into space</figcaption>
+	</figure>
+	<figure>
+		<label>
+			<i>L</i>
+			<br>
+			<input type="number" required name="L" value="1000">
+		</label>
+		<figcaption>Lifetime of such a civilization wherein it communicates its signals into space</figcaption>
+	</figure>
+</div>
+<p style="font-size: large;">
+	<strong> = </strong>
+</p>
+<label>
+	<figure>
+		<i>N</i>
+		<input name="N" value="" readonly>
+
+		<figcaption>The number of civilizations in our galaxy with which communication might be possible</figcaption>
+
+	</figure>
+</label>
+
+<script type="text/javascript">
+	let d = new DrakeMaker(
+		document.querySelector('[name=R]'),
+		document.querySelector('[name=fp]'),
+		document.querySelector('[name=ne]'),
+		document.querySelector('[name=fl]'),
+		document.querySelector('[name=fi]'),
+		document.querySelector('[name=fc]'),
+		document.querySelector('[name=L]'),
+		document.querySelector('[name=N]')
+	);
+</script>
+</body>
+
+</html>
